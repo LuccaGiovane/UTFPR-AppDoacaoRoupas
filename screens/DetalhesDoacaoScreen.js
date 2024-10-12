@@ -3,10 +3,12 @@ import { View, Text, StyleSheet } from 'react-native';
 
 export default function DetalhesDoacaoScreen({ route }) {
   const { doacao } = route.params; // Recebe a doação selecionada
+  const dataFormatada = new Date(doacao.data).toLocaleDateString(); // Reconverte para formato legível, se necessário
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Detalhes da Doação: {doacao.nome}</Text>
+      <Text>Data da Doação: {dataFormatada}</Text>
       {doacao.itens.map((item, index) => (
         <View key={index} style={styles.itemContainer}>
           <Text>{item.quantidade}x {item.item} - Tamanho: {item.tamanho}</Text>

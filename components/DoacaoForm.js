@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Modal } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-export default function DoacaoForm({ adicionarDoacao, finalizarDoacao }) {
+export default function DoacaoForm({ adicionarDoacao, finalizarDoacao, itemEditado }) {
   const [item, setItem] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [tamanho, setTamanho] = useState('M');
   const [modalVisible, setModalVisible] = useState(false);
   const [doacaoNome, setDoacaoNome] = useState('');
+
+  // Preenche os campos ao editar um item
+  useEffect(() => {
+    if (itemEditado) {
+      setItem(itemEditado.item);
+      setQuantidade(itemEditado.quantidade);
+      setTamanho(itemEditado.tamanho);
+    }
+  }, [itemEditado]);
 
   const handleAdicionar = () => {
     if (item && quantidade && tamanho) {
@@ -82,7 +91,7 @@ export default function DoacaoForm({ adicionarDoacao, finalizarDoacao }) {
         </View>
       </Modal>
 
-      <Button title="Adicionar Doação" onPress={handleAdicionar} />
+      <Button title={itemEditado ? "Atualizar Item" : "Adicionar Doação"} onPress={handleAdicionar} />
 
       {/* Campo para o nome da doação */}
       <TextInput

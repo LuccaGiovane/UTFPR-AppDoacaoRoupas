@@ -14,7 +14,7 @@ export default function HistoricoDoacoesScreen({ doacoes = [], navigation }) { /
   const renderDoacao = ({ item }) => (
     <TouchableOpacity
       style={styles.doacaoButton}
-      onPress={() => navigation.navigate('DetalhesDoacao', { doacao: item })}
+      onPress={() => navigation.navigate('DetalhesDoacao', { doacao: item })} // Certifica-se de passar a navegação corretamente
     >
       <Text style={styles.doacaoNome}>{item.nome}</Text>
     </TouchableOpacity>
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   doacaoButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#6f6f6f', // Cor de fundo ajustada para melhor visualização
     padding: 15,
     marginVertical: 8,
     borderRadius: 10,
@@ -45,5 +45,6 @@ const styles = StyleSheet.create({
   doacaoNome: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: 'white', // Coloca o texto branco para contraste com o fundo mais escuro
   },
 });
