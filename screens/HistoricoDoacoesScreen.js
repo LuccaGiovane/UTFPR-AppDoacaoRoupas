@@ -1,44 +1,34 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, TextInput, Button } from 'react-native';
 
-export default function HistoricoDoacoesScreen({ route, navigation }) {
-  const { doacoes = [] } = route.params || {};
+export default function HistoricoDoacoesScreen({ doacoes, setDoacoes, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalDeletarVisible, setModalDeletarVisible] = useState(false);
   const [doacaoParaEditar, setDoacaoParaEditar] = useState(null);
   const [novoNome, setNovoNome] = useState('');
-  const [doacaoParaDeletar, setDoacaoParaDeletar] = useState(null); // Doação que será deletada
-  const [modalDeletarVisible, setModalDeletarVisible] = useState(false);
+  const [doacaoParaDeletar, setDoacaoParaDeletar] = useState(null);
 
   // Função para salvar a edição do nome da doação
   const salvarEdicao = () => {
-    doacaoParaEditar.nome = novoNome;
-    setDoacaoParaEditar(null);
+    const novasDoacoes = doacoes.map((doacao) => 
+      doacao === doacaoParaEditar ? { ...doacao, nome: novoNome } : doacao
+    );
+    setDoacoes(novasDoacoes);
     setModalVisible(false);
   };
 
   // Função para deletar uma doação
   const deletarDoacao = () => {
-    const novasDoacoes = doacoes.filter((_, index) => index !== doacaoParaDeletar);
-    route.params.doacoes = novasDoacoes; // Atualiza as doações
+    const novasDoacoes = doacoes.filter((doacao) => doacao !== doacaoParaDeletar);
+    setDoacoes(novasDoacoes);
     setModalDeletarVisible(false);
-    setDoacaoParaDeletar(null);
   };
 
-  const editarNomeDoacao = (index) => {
-    setDoacaoParaEditar(doacoes[index]);
-    setNovoNome(doacoes[index].nome); // Define o nome atual para editar
-    setModalVisible(true); // Exibe o modal para edição
-  };
-
-  const confirmarDelecao = (index) => {
-    setDoacaoParaDeletar(index);
-    setModalDeletarVisible(true); // Exibe o modal de confirmação de deleção
-  };
-
-  if (doacoes.length === 0) {
+  // Se não houver doações, exibir uma mensagem
+  if (!doacoes || doacoes.length === 0) {
     return (
       <View style={styles.container}>
-        <Text>Nenhuma doação cadastrada.</Text>
+        <Text>Nenhuma doação cadastrada ainda.</Text>
       </View>
     );
   }
@@ -55,12 +45,20 @@ export default function HistoricoDoacoesScreen({ route, navigation }) {
               onPress={() => navigation.navigate('DetalhesDoacao', { doacao: item })}
             >
               <Text style={styles.doacaoNome}>{item.nome}</Text>
+              <Text style={styles.doacaoData}>{new Date(item.data).toLocaleString()}</Text>
             </TouchableOpacity>
             <View style={styles.actionsContainer}>
-              <TouchableOpacity onPress={() => editarNomeDoacao(index)} style={styles.editButton}>
+              <TouchableOpacity onPress={() => {
+                setDoacaoParaEditar(item);
+                setNovoNome(item.nome);
+                setModalVisible(true);
+              }} style={styles.editButton}>
                 <Text style={styles.editButtonText}>Editar</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => confirmarDelecao(index)} style={styles.deleteButton}>
+              <TouchableOpacity onPress={() => {
+                setDoacaoParaDeletar(item);
+                setModalDeletarVisible(true);
+              }} style={styles.deleteButton}>
                 <Text style={styles.deleteButtonText}>Deletar</Text>
               </TouchableOpacity>
             </View>
@@ -68,9 +66,8 @@ export default function HistoricoDoacoesScreen({ route, navigation }) {
         )}
       />
 
-      {/* Modal de edição do nome da doação */}
+      {/* Modal de edição */}
       <Modal
-        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
@@ -91,13 +88,12 @@ export default function HistoricoDoacoesScreen({ route, navigation }) {
 
       {/* Modal de confirmação de deleção */}
       <Modal
-        animationType="slide"
         transparent={true}
         visible={modalDeletarVisible}
         onRequestClose={() => setModalDeletarVisible(false)}
       >
         <View style={styles.modalView}>
-          <Text>Tem certeza que quer deletar {doacoes[doacaoParaDeletar]?.nome}?</Text>
+          <Text>Tem certeza que quer deletar {doacaoParaDeletar?.nome}?</Text>
           <View style={styles.modalButtons}>
             <Button title="Sim" onPress={deletarDoacao} />
             <Button title="Não" onPress={() => setModalDeletarVisible(false)} />
@@ -130,6 +126,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
+  },
+  doacaoData: {
+    fontSize: 14,
+    color: 'white',
+    marginTop: 5,
   },
   actionsContainer: {
     flexDirection: 'row',

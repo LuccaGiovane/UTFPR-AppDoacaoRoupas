@@ -4,20 +4,19 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import CadastroDoacaoScreen from './screens/CadastroDoacaoScreen';
 import HistoricoDoacoesScreen from './screens/HistoricoDoacoesScreen';
-import DetalhesDoacaoScreen from './screens/DetalhesDoacaoScreen'; // Importa a tela de detalhes
+import DetalhesDoacaoScreen from './screens/DetalhesDoacaoScreen';
+import PontosDeDoacaoScreen from './screens/PontosDeDoacaoScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-function HistoricoStackScreen({ route }) {
-  const { doacoes } = route.params || { doacoes: [] }; // Verifica se há doações
+function HistoricoStackScreen({ doacoes, setDoacoes }) {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen 
+    <Stack.Navigator>
+      <Stack.Screen
         name="HistoricoDeDoacoes"
-        component={HistoricoDoacoesScreen}
         options={{ title: 'Histórico de Doações' }}
-        initialParams={{ doacoes }} // Passa as doações via parâmetros
+        children={(props) => <HistoricoDoacoesScreen {...props} doacoes={doacoes} setDoacoes={setDoacoes} />}
       />
       <Stack.Screen name="DetalhesDoacao" component={DetalhesDoacaoScreen} />
     </Stack.Navigator>
@@ -25,15 +24,15 @@ function HistoricoStackScreen({ route }) {
 }
 
 export default function App() {
-  const [doacoes, setDoacoes] = useState([]); // Inicializa como array vazio
+  const [doacoes, setDoacoes] = useState([]);
 
   const adicionarDoacao = (itens, nome) => {
     const novaDoacao = {
-      nome: nome,
-      itens: itens,
-      data: new Date().toISOString(), // Converte a data para string serializável
+      nome,
+      itens,
+      data: new Date().toISOString(),
     };
-    setDoacoes([novaDoacao, ...doacoes]); // Atualiza o estado com a nova doação
+    setDoacoes([novaDoacao, ...doacoes]); // Adiciona a nova doação no início
   };
 
   return (
@@ -41,16 +40,23 @@ export default function App() {
       <Tab.Navigator>
         {/* Cadastro de Doações */}
         <Tab.Screen 
-          name="Cadastro" 
-          component={() => <CadastroDoacaoScreen adicionarDoacao={adicionarDoacao} />}
+          name="Cadastro"
+          children={() => <CadastroDoacaoScreen adicionarDoacao={adicionarDoacao} />}
           options={{ title: 'Cadastro de Doações' }}
         />
 
         {/* Histórico de Doações */}
         <Tab.Screen 
           name="Historico"
-          component={() => <HistoricoStackScreen route={{ params: { doacoes } }} />} // Passa as doações como parâmetro
+          children={() => <HistoricoStackScreen doacoes={doacoes} setDoacoes={setDoacoes} />}
           options={{ title: 'Histórico de Doações' }}
+        />
+
+        {/* Pontos de Doação */}
+        <Tab.Screen 
+          name="PontosDeDoacao"
+          component={PontosDeDoacaoScreen}
+          options={{ title: 'Pontos de Doação' }}
         />
       </Tab.Navigator>
     </NavigationContainer>
