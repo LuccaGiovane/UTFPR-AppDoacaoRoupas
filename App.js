@@ -9,13 +9,15 @@ import DetalhesDoacaoScreen from './screens/DetalhesDoacaoScreen'; // Importa a 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-function HistoricoStackScreen({ doacoes }) {
+function HistoricoStackScreen({ route }) {
+  const { doacoes } = route.params || { doacoes: [] }; // Verifica se há doações
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen 
-        name="HistóricoPrincipal" 
+        name="HistoricoDeDoacoes"
         component={HistoricoDoacoesScreen}
-        options={{ title: 'Histórico de Doações' }} // Título será exibido apenas aqui
+        options={{ title: 'Histórico de Doações' }}
+        initialParams={{ doacoes }} // Passa as doações via parâmetros
       />
       <Stack.Screen name="DetalhesDoacao" component={DetalhesDoacaoScreen} />
     </Stack.Navigator>
@@ -31,27 +33,25 @@ export default function App() {
       itens: itens,
       data: new Date().toISOString(), // Converte a data para string serializável
     };
-    setDoacoes([novaDoacao, ...doacoes]);
+    setDoacoes([novaDoacao, ...doacoes]); // Atualiza o estado com a nova doação
   };
-  
+
   return (
     <NavigationContainer>
       <Tab.Navigator>
         {/* Cadastro de Doações */}
         <Tab.Screen 
           name="Cadastro" 
-          options={{ title: 'Cadastro de Doações' }} // Define o título da aba
-        >
-          {() => <CadastroDoacaoScreen adicionarDoacao={adicionarDoacao} />}
-        </Tab.Screen>
+          component={() => <CadastroDoacaoScreen adicionarDoacao={adicionarDoacao} />}
+          options={{ title: 'Cadastro de Doações' }}
+        />
 
         {/* Histórico de Doações */}
         <Tab.Screen 
-          name="Histórico" 
-          options={{ title: 'Histórico' }} // Aba da Bottom Tab renomeada para "Histórico"
-        >
-          {() => <HistoricoStackScreen doacoes={doacoes} />}
-        </Tab.Screen>
+          name="Historico"
+          component={() => <HistoricoStackScreen route={{ params: { doacoes } }} />} // Passa as doações como parâmetro
+          options={{ title: 'Histórico de Doações' }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
